@@ -14,6 +14,8 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController todoController = TextEditingController();
 
   List<Todo> todos = [];
+  Todo? todoDeleted;
+  int? todoDeletedIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +47,8 @@ class _HomePageState extends State<HomePage> {
                         String text = todoController.text;
                         setState(() {
                           Todo newTodo = Todo(
-                            title: text, dateTime: DateTime.now(),
+                            title: text,
+                            dateTime: DateTime.now(),
                           );
                           todos.add(newTodo);
                         });
@@ -65,9 +68,10 @@ class _HomePageState extends State<HomePage> {
                   child: ListView(
                     shrinkWrap: true,
                     children: [
-                      for(Todo todo in todos)
+                      for (Todo todo in todos)
                         TodoListItem(
                           todo: todo,
+                          onDelete: onDelete,
                         ),
                     ],
                   ),
@@ -97,6 +101,33 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  void onDelete(Todo todo) {
+    todoDeleted = todo;
+    todoDeletedIndex = todos.indexOf(todo);
+    setState(() {
+      todos.remove(todo);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          "Tarefa ${todo.title} deletada com Sucesso.",
+          style: TextStyle(color: Color(0xff060708)),
+        ),
+        backgroundColor: Colors.white,
+        action: SnackBarAction(
+          label: "Desfazer",
+          textColor: const Color(0xff00d7f3),
+          onPressed: () {
+            setState(() {
+              todos.insert(todoDeletedIndex!, todoDeleted!);
+            });
+          },
         ),
       ),
     );
